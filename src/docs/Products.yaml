@@ -1,0 +1,213 @@
+openapi: 3.0.0
+info:
+  title: API Backend Ecommerce - Products
+  version: 1.0.0
+  description: Documentación de la API para el manejo de productos
+paths:
+
+  /:
+    get:
+      summary: Renderizar vista "home.handlebars" de inicio, con los productos, permitiendo filtrarlos por categoria.
+      tags:
+        - Home-Products
+      description: Renderiza la vista de inicio con los productos y funcionalidades de la tienda. Y permite filtrar los productos por categoría.
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filtrar productos por categoría.
+      responses:
+        '200':
+          description: Éxito. Página de inicio renderizada correctamente.
+          content:
+            text/html:
+              schema:
+                type: string
+              example: |
+                {{> menu}}
+                <h1>Productos</h1>
+
+                <h3>
+                    {{#if login}}
+                    Bienvenido a la Tienda, {{usuario.nombre}}!
+                    {{else}}Bienvenido a la Tienda, Invitado!
+                    <p>Para agregar productos al carrito, por favor <a href="/login">iniciar sesión</a>.</p>
+                    {{/if}}
+                </h3>
+
+                {{#if currentCategory}}
+                  <h2>Productos de la categoría {{currentCategory}}</h2>
+                {{else}}
+                  <h2>Todos los productos</h2>
+                {{/if}}
+
+                {{#each products}}
+                  <div class="product">
+                    <img src="{{thumbnails.[0]}}" alt="{{title}}">
+                    <h2>{{title}}</h2>
+                    <p>{{description}}</p>
+                    <p>Precio: {{price}}</p>
+                    <p>Stock: {{stock}}</p>
+                    <p>Categoría: {{category}}</p>
+                    <button onclick="agregar('{{_id}}', '{{title}}', '{{usuario.carrito}}')">Agregar al carrito</button>
+                  </div>
+                {{/each}}
+
+                <script>
+                const agregar = async (id, title, carrito) => {
+                    let resultado = await fetch('/api/carts/{{usuario.carrito}}/product/'+id, {
+                        method: "POST"
+                    });
+
+                    if (resultado.ok) {
+                        const confirmacion = window.alert('Tu producto se ha agregado correctamente al carrito');
+                    }
+                };
+                </script>
+        '500':
+          description: Error. Error al obtener los productos y renderizarlos en la vista home.handlebars.
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Error al obtener los productos y renderizarlos en la vista home.handlebars.
+
+  /api/products:
+    post:
+      summary: Crear un nuevo producto
+      tags:
+        - Products
+      requestBody:
+        description: Datos del nuevo producto a crear
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: a Product Object 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indica si la operación fue exitosa
+                  message:
+                    type: string
+                    description: Mensaje de éxito
+                  newProductData:
+                    $ref: '#/components/schemas/Product'
+              example:
+                success: true
+                message: Producto agregado correctamente.
+                newProductData:
+                  title: Producto de ejemplo
+                  description: Descripción del producto de ejemplo
+                  price: 19.99
+                  thumbnails:
+                    - https://example.com/image1.jpg
+                  code: ABC123
+                  stock: 100
+                  status: true
+                  category: Electronics
+                  deleted: false
+                  owner:
+                    userId: 1234567890
+                    role: premium
+        '400':
+          description: Error de validación en los datos del producto
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Descripción del error de validación
+              example:
+                error: El campo 'title' es obligatorio.
+        '401':
+          description: Error de autenticación
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Mensaje de error de autenticación
+              example:
+                error: No autorizado.
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Descripción del error interno
+              example:
+                error: Error al agregar el producto.
+
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Título del producto.
+        description:
+          type: string
+          description: Descripción del producto.
+        price:
+          type: number
+          description: Precio del producto.
+        thumbnails:
+          type: array
+          items:
+            type: string
+          description: URLs de las imágenes del producto.
+        code:
+          type: string
+          description: Código único del producto.
+        stock:
+          type: number
+          description: Cantidad en stock del producto.
+        status:
+          type: boolean
+          description: Estado del producto.
+        category:
+          type: string
+          description: Categoría del producto.
+        deleted:
+          type: boolean
+          description: Indica si el producto está marcado como eliminado.
+        owner:
+          type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+              description: ID del propietario del producto.
+            role:
+              type: string
+              enum: [administrador, premium]
+              default: administrador
+              description: Rol del propietario del producto.
+      required:
+        - title
+        - description
+        - price
+        - thumbnails
+        - code
+        - stock
+        - category
+        - owner
