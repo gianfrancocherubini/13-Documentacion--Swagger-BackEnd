@@ -159,11 +159,7 @@ export class ProductsController{
             req.logger.info(`Producto eliminado: ${productId}`);
             res.setHeader('Content-Type', 'application/json');
             return res.status(200).json({ success: true, message: 'Producto eliminado.' });
-        } else {
-            req.logger.error('No se concretó la eliminacion.')
-            res.setHeader('Content-Type', 'application/json');
-            return res.status(400).json({ error: 'No se concretó la eliminacion.' });
-        }       
+        }     
 
     } catch (error) {
         req.logger.error(`Error al eliminar el producto ${error}`);
