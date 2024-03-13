@@ -124,7 +124,6 @@ paths:
               example:
                 error: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador
 
-  paths:
   /api/carts/{cid}/product/{pid}:
     post:
       summary: Agregar un producto al carrito
@@ -295,6 +294,76 @@ paths:
                     description: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador.
               example:
                 error: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador.
+  /api/carts/{cid}/purchase:
+    post:
+      summary: Realizar la compra de los productos en el carrito
+      tags:
+        - Compra
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+          description: ID del carrito
+      responses:
+        '200':
+          description: Éxito. Se ha generado el ticket de compra correctamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket:
+                    type: object
+                    properties:
+                      purchaser:
+                        type: string
+                        description: Correo electrónico del comprador
+                      code:
+                        type: string
+                        description: Código del ticket generado
+                      amount:
+                        type: number
+                        description: Monto total de la compra
+                      purchase_datetime:
+                        type: string
+                        format: date-time
+                        description: Fecha y hora de la compra
+                  message:
+                    type: string
+                    description: Mensaje de éxito
+              example:
+                ticket:
+                  purchaser: ejemplo@correo.com
+                  code: ABC123
+                  amount: 50.00
+                  purchase_datetime: 2024-03-13T15:45:00Z
+                message: Ticket generado correctamente.
+        '404':
+          description: Error. El carrito no fue encontrado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Carrito no encontrado.
+              example:
+                error: Carrito no encontrado.
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador.
+              example:
+                error: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador.
 
 components:
   schemas:
@@ -322,4 +391,20 @@ components:
       required:
         - items
 
+    TicketDetails:
+      type: object
+      properties:
+        purchaser:
+          type: string
+          description: Correo electrónico del comprador.
+        code:
+          type: string
+          description: Código del ticket generado.
+        amount:
+          type: number
+          description: Monto total de la compra.
+        purchase_datetime:
+          type: string
+          format: date-time
+          description: Fecha y hora de la compra.
  
