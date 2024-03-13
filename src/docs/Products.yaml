@@ -4,7 +4,6 @@ info:
   version: 1.0.0
   description: Documentación de la API para el manejo de productos
 paths:
-
   /:
     get:
       summary: Buscar los productos y renderizarlos en vista home.handlebars
@@ -24,11 +23,10 @@ paths:
             text/html:
               schema: 
                 $ref: '#/components/schemas/Product'
-                type: object
               example: |
                 {{> menu}}
                 <h1>Productos</h1>
-
+                
                 <h3>
                     {{#if login}}
                     Bienvenido a la Tienda, {{usuario.nombre}}!
@@ -54,17 +52,14 @@ paths:
                     <button onclick="agregar('{{_id}}', '{{title}}', '{{usuario.carrito}}')">Agregar al carrito</button>
                   </div>
                 {{/each}}
-          
-                <script>
-                const agregar = async (id, title, carrito) => {
-                    let resultado = await fetch('/api/carts/{{usuario.carrito}}/product/'+id, {
-                        method: "POST"
-                    });
 
+                <script>
+                  const agregar = async (id, title, carrito) => {
+                    let resultado = await fetch('/api/carts/{{usuario.carrito}}/product/'+id, { method: "POST" });
                     if (resultado.ok) {
-                        const confirmacion = window.alert('Tu producto se ha agregado correctamente al carrito');
+                      const confirmacion = window.alert('Tu producto se ha agregado correctamente al carrito');
                     }
-                };
+                  };
                 </script>
         '500':
           description: Error. Error al obtener los productos y renderizarlos en la vista home.handlebars.
@@ -260,6 +255,7 @@ paths:
                     description: Descripción del error interno
               example:
                 error: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`.
+
     /api/products/:pid:
     delete:
       summary: Eliminar un producto a traves de su id.

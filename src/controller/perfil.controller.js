@@ -73,7 +73,6 @@ export class PerfilController {
     static async recuperoPassword01 (req, res){
         let {email} = req.body
         let usuario = await usuariosDao.getUsuarioByEmailLogin(email);
-        req.logger.info(usuario.email);
         if(!usuario){
             return res.redirect('/recuperoPassword?error=No se encontro el usuario con el email proporcionado, verifique si es el correcto!')
         }
@@ -128,10 +127,6 @@ export class PerfilController {
             let usuario=await usuariosDao.getUsuarioByEmailLogin(datosToken.email);
             console.log(usuario)
             
-            if(!usuario){
-                res.redirect(`/recuperoPassword02?error=No se encontro usuario con el mail ingresado. Verifique si es el correcto`);
-            }
-
             if(bcrypt.compareSync(password, usuario.password)){
                 res.redirect(`/recuperoPassword02?error=Ha ingresado una contraseña existente. No esta permitido`);
             }

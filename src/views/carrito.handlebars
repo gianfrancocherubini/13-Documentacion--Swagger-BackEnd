@@ -1,4 +1,4 @@
-   {{>menu}}
+    {{>menu}}
     <h1>Carrito de compras</h1>
     {{#if carts.items.length}}
         <ul>
@@ -21,25 +21,25 @@
         <p>El carrito está vacío.</p>
     {{/if}}
 
-<br>
+    <br>
 
-<script>
-  const eliminarProducto = async(id, carrito)=> {
-      let resultado=await fetch("/api/carts/{{usuario.carrito}}/product/" + id ,{
-      method:"delete"
-    })
+    <script>
+        const eliminarProducto = async(id, carrito)=> {
+        let resultado=await fetch("/api/carts/{{usuario.carrito}}/product/" + id ,{
+        method:"delete"
+        })
 
     if(resultado.ok){
         alert('Tu producto se ha eliminado correctamente.');
         location.reload();
     }
 
-  }
+    }
 
-  const realizarCompra = async(carrito)=> {
-    let resultado=await fetch ("/api/carts/{{usuario.carrito}}/purchase", {
+    const realizarCompra = async(carrito)=> {
+        let resultado=await fetch ("/api/carts/{{usuario.carrito}}/purchase", {
         method: "post"
-    })
+        })
     if(resultado.ok){
         window.alert('Tu compra ha sido realizada correctamente. Recibiras tu Ticket de compra via email.');
         location.reload();
@@ -49,4 +49,4 @@
   
 
 
-</script>
+    </script>
