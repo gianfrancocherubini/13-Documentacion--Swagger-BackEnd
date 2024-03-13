@@ -10,7 +10,7 @@ export class ticketMongoDao {
     }
 
     async creaTicket(purchaserEmail, totalAmount) {
-        const ticketCode = await this.generaCode(); 
+        const ticketCode = await this.generaCode();
         const ticket = new TicketEsquema({
             code: ticketCode,
             purchaser: purchaserEmail,

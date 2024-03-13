@@ -5,8 +5,7 @@ info:
   description: Documentación de la API para el manejo de carrito de compras
 
 paths:
-
-  /carrito/:cid:  
+  /carrito/{cid}:  
     get:
       summary: Buscar el carrito de compras por id y renderizarlo en la vista carrito.handlebars
       tags:
@@ -21,7 +20,7 @@ paths:
           description: El ID del carrito que se desea renderizar.
       responses:
         '200':
-          description: Éxito. Página de inicio renderizada correctamente con los productos de la base de datos.
+          description: Éxito. Página de inicio renderizada correctamente con los productos de la base de datos. Ademas renderiza el precio total del carrito, que es la suma de los precios de los productos multiplicados por su cantidad.
           content:
             text/html:
               schema: 
@@ -78,6 +77,224 @@ paths:
                     description: Error el id del carrito no es válido.
               example:
                 error: El ID del carrito proporcionado no es válido.
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Descripción del error interno
+              example:
+                error: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador
+
+  /api/carts:
+    post:
+      summary: Crear un carrito
+      tags:
+        - Carrito
+      responses:
+        '201':
+          description: Carrito creado correctamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indica si la operación fue exitosa.
+                  message:
+                    type: string
+                    description: Mensaje de éxito.
+                  cart:
+                    $ref: '#/components/schemas/Cart'
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Descripción del error interno
+              example:
+                error: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador
+
+  paths:
+  /api/carts/{cid}/product/{pid}:
+    post:
+      summary: Agregar un producto al carrito
+      tags:
+        - Carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+          description: ID del carrito
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+          description: ID del producto a agregar
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  description: Cantidad del producto a agregar (por defecto 1)
+      responses:
+        '200':
+          description: Producto agregado correctamente al carrito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400':
+          description: Error. Parámetros inválidos. Se deben proporcionar un ID de carrito y un ID de producto válidos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error. Se deben proporcionar un ID de carrito y un ID de producto.
+              example:
+                error: Se deben proporcionar un ID de carrito y un ID de producto válidos.
+        '403':
+          description: Error. El usuario premium, no puede agregar al carrito productos propios.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error. No puede agregar al carrito productos propios.
+              example:
+                error: El usuario premium, no puede agregar al carrito productos propios.
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador.
+              example:
+                error: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador.
+
+    delete:
+      summary: Eliminar un producto del carrito.
+      tags:
+        - Carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+          description: ID del carrito
+        - in: path
+          name: pid
+          required: true
+          schema:
+            type: string
+          description: ID del producto a eliminar
+      responses:
+        '200':
+          description: Producto eliminado correctamente del carrito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400':
+          description: Parámetros inválidos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Descripción del error.
+              example:
+                error: Se deben proporcionar un ID de carrito y un ID de producto válidos.
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Descripción del error interno.
+              example:
+                error: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador.
+ 
+  /api/carts/{cid}:
+    delete:
+      summary: Eliminar un carrito de compras por ID
+      tags:
+        - Carrito
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          schema:
+            type: string
+          description: ID del carrito a eliminar
+      responses:
+        '200':
+          description: Carrito eliminado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: El carrito fue eliminado correctamente.
+              example:
+                message: Producto eliminado correctamente.
+        '400':
+          description: Error. Se debe proporcionar un ID de carrito válido.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error. Se deben proporcionar un ID de carrito válido.
+              example:
+                error: Se deben proporcionar un ID de carrito válido.
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador.
+              example:
+                error: Error inesperado en el servidor - Intente más tarde, o contacte a su administrador.
 
 components:
   schemas:
